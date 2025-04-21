@@ -1,6 +1,6 @@
-package entities
+package dtos
 
-type Account struct {
+type CreateAccountRequest struct {
 	Firstname  string `json:"firstname"`
 	Surname    string `json:"surname"`
 	Patronymic string `json:"patronymic"`

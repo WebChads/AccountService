@@ -2,10 +2,13 @@ package server
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
+	"log/slog"
 	"net/http"
 
-	"github.com/WebChads/AccountService/internal/delivery/http/handler"
+	"github.com/WebChads/AccountService/internal/config"
+	"github.com/WebChads/AccountService/internal/delivery/http/router"
 	"github.com/go-chi/chi"
 )
 
@@ -26,12 +29,49 @@ func NewServer(port int) *Server {
 	return &Server{server: srv}
 }
 
-func InitRouter() *chi.Mux {
-	router := chi.NewRouter()
+func NewDB(config *config.ServerConfig) *sql.DB {
+	db, err := sql.Open("postgres", config.DBUrl)
+	if err != nil {
+		return nil
+	}
 
-	account := handler.NewAccountHandler()
-	router.HandleFunc("/api/v1/account/create-account", account.CreateAccountHandler)
-	router.HandleFunc("/api/v1/account/update-account", account.UpdateAccountHandler)
+	return db	
+}
+
+func InitRouter(config *config.ServerConfig, logger *slog.Logger) *chi.Mux {
+	// router := chi.NewRouter()
+	// accountRepo := storage.NewAccountRepository()
+	// accountUsecase := usecase.NewAccountUsecase(accountRepo)
+	// account := handler.NewAccountHandler(usecase.NewAccountUsecase())
+	// router.HandleFunc("/api/v1/account/create-account", account.CreateAccountHandler)
+
+	rout := chi.NewRouter()
+
+	// add all routers here
+	accountRouter := router.NewAccountRouter(rout, config, logger)
+
+	// Routers
+	// pingrouter := PingRouter.NewPingRouter(s.config, rout.PathPrefix("/api/v1").Subrouter(), UserUC, log)
+	// instructionrouter := InstructionRouter.NewInstructionRouter(s.config, rout.PathPrefix("/api/v1").Subrouter(), InstructionUC, UserUC, log)
+	// productrouter := ProductRouter.NewProductRouter(s.config, rout.PathPrefix("/api/v1").Subrouter(), ProductUC, UserUC, log)
+	// rentedproductrouter := RentedProductRouter.NewRentedProductRouter(s.config, rout.PathPrefix("/api/v1").Subrouter(), RentedProductUC, UserUC, log)
+	// showcaserouter := ShowcaseRouter.NewShowcaseRouter(s.config, rout.PathPrefix("/api/v1").Subrouter(), ShowcaseUC, UserUC, log)
+	// userrouter := UserRouter.NewUserRouter(s.config, rout.PathPrefix("/api/v1").Subrouter(), rout.PathPrefix("/api/v1").Subrouter(), UserUC, ObjectUC, log)
+	// objectrouter := ObjectRouter.NewObjectRouter(s.config, rout.PathPrefix("/api/v1").Subrouter(), ObjectUC, UserUC, log)
+	// cardrouter := CardRouter.NewCardRouter(s.config, rout.PathPrefix("/api/v1").Subrouter(), CardUC, UserUC, log)
+
+	http.Handle("/", rout)
+
+	// Configure Routers
+	router.ConfigureAccountRouter(accountRouter)
+	// PingRouter.ConfigureRouter(pingrouter)
+	// InstructionRouter.ConfigureRouter(instructionrouter)
+	// ProductRouter.ConfigureRouter(productrouter)
+	// RentedProductRouter.ConfigureRouter(rentedproductrouter)
+	// ShowcaseRouter.ConfigureRouter(showcaserouter)
+	// UserRouter.ConfigureRouter(userrouter)
+	// ObjectRouter.ConfigureRouter(objectrouter)
+	// CardRouter.ConfigureRouter(cardrouter)
 
 	return router
 }
