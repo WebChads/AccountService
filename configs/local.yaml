@@ -1,0 +1,6 @@
+# config file for local dev
+
+log_level: "local"
+address: "localhost:5000"
+database_url: "postgres://YourUserName:YourPassword@YourHostname:5432/YourDatabaseName"
+#database_url: "host=localhost dbname=postgres sslmode=disable user=postgres password=postgres"

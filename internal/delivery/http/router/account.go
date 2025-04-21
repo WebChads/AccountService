@@ -37,15 +37,14 @@ func NewAccountRouter(r *chi.Mux, cfg *config.ServerConfig,
 	return router
 }
 
-func ConfigureAccountRouter(ar *AccountRouter) {
+func ConfigureAccountRouter(r *AccountRouter) {
 	// TODO: use middleware to check user authorization
 
-	ar.defaultHandler.HandleFunc("/api/v1/account/create-account", ar.CreateAccountHandler)
+	r.defaultHandler.HandleFunc("/api/v1/account/create-account", r.CreateAccountHandler)
+	// ...
 }
 
 func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
-	slog.Info("CreateAccountHandler")
-
 	var request dtos.CreateAccountRequest
 
 	// serialize account info using DTO

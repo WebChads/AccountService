@@ -2,6 +2,8 @@ package storage
 
 import (
 	"database/sql"
+
+	"github.com/WebChads/AccountService/internal/models/entities"
 )
 
 type AccountRepository struct {
@@ -14,23 +16,6 @@ func NewAccountRepository(db *sql.DB) *AccountRepository {
 	}
 }
 
-func (a *AccountRepository) Insert() error {
-	// res, err := a.db.Exec("SELECT * FROM accounts")
-	// if err != nil {
-	// 	if errors.Is(err, sql.ErrNoRows) {
-	// 		return err
-	// 	}
-
-	// 	return err
-	// }
-
-	// // Get number of affected rows
-	// rows, _ := res.RowsAffected()
-	// _ = rows
-
-	return nil
-}
-
-func (a *AccountRepository) Update() error {
+func (a *AccountRepository) Insert(account *entities.Account) error {
 	return nil
 }
