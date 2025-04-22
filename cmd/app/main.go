@@ -7,6 +7,7 @@ import (
 	"github.com/WebChads/AccountService/internal/config"
 	server "github.com/WebChads/AccountService/internal/delivery/http"
 	slogerr "github.com/WebChads/AccountService/internal/pkg/logger"
+	prettylogger "github.com/WebChads/AccountService/pkg/pretty_logger"
 )
 
 func main() {
@@ -31,6 +32,7 @@ func main() {
 	srv := server.NewServer(router, config.Address)
 
 	// Run server
+	logger.Info("server started", "address", config.Address)
 	srv.ListenAndServe()
 }
 
@@ -45,9 +47,8 @@ func setupLogger(env string) *slog.Logger {
 
 	switch env {
 	case envLocal:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
+		handler := prettylogger.NewPrettyHandler(os.Stdout)
+		log = slog.New(handler)
 	case envStage:
 		log = slog.New(
 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),

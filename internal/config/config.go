@@ -23,7 +23,7 @@ func NewServerConfig() *ServerConfig {
 
 	// Check if file exists
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		slog.Error("config file does not exists: %s", configPath)
+		slog.Error("config file does not exists: " + configPath)
 		return nil
 	}
 
