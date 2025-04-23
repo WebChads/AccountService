@@ -1,21 +1,45 @@
 package storage
 
 import (
-	"database/sql"
+	"context"
+	"time"
 
 	"github.com/WebChads/AccountService/internal/models/entities"
+	"github.com/jmoiron/sqlx"
 )
 
 type AccountRepository struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewAccountRepository(db *sql.DB) *AccountRepository {
+func NewAccountRepository(db *sqlx.DB) *AccountRepository {
 	return &AccountRepository{
 		db: db,
 	}
 }
 
 func (a *AccountRepository) Insert(account *entities.Account) error {
-	return nil
+	// Create transactions up to 100 milliseconds long
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Millisecond * 100))
+    defer cancel()
+
+    query := `
+        INSERT INTO accounts (
+            firstname, 
+            surname, 
+            patronymic, 
+            gender, 
+            birthdate
+        ) VALUES (:firstname, :surname, :patronymic, :gender, :birthdate)
+        RETURNING id, created_at, updated_at
+    `
+
+    // Using NamedQuery + Get for simpler single-row results
+    stmt, err := a.db.PrepareNamedContext(ctx, query)
+    if err != nil {
+        return err
+    }
+    defer stmt.Close()
+
+    return stmt.GetContext(ctx, account, account)
 }

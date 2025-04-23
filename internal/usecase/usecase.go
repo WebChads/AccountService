@@ -1,10 +1,9 @@
 package usecase
 
 import (
-	"database/sql"
-
 	"github.com/WebChads/AccountService/internal/models/entities"
 	storage "github.com/WebChads/AccountService/internal/storage/pgsql"
+	"github.com/jmoiron/sqlx"
 )
 
 type AccountRepository interface {
@@ -17,7 +16,7 @@ type Repositories struct {
 	// ...
 }
 
-func NewRepositories(db *sql.DB) *Repositories {
+func NewRepositories(db *sqlx.DB) *Repositories {
 	return &Repositories{
 		Account: storage.NewAccountRepository(db),
 		// ...

@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"database/sql"
 	"log/slog"
 	"net/http"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/WebChads/AccountService/internal/delivery/http/router"
 	"github.com/WebChads/AccountService/internal/usecase"
 	"github.com/go-chi/chi"
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
@@ -28,8 +28,8 @@ func NewServer(handler http.Handler, address string) *Server {
 	return &Server{server: srv}
 }
 
-func NewDB(connString string) (*sql.DB, error) {
-	db, err := sql.Open("postgres", connString)
+func NewDB(connString string) (*sqlx.DB, error) {
+	db, err := sqlx.Open("postgres", connString)
 	if err != nil {
 		return nil, err
 	}
@@ -37,14 +37,14 @@ func NewDB(connString string) (*sql.DB, error) {
 	return db, nil
 }
 
-func InitRouter(config *config.ServerConfig, logger *slog.Logger, db *sql.DB) http.Handler {
+func InitRouter(config *config.ServerConfig, logger *slog.Logger, db *sqlx.DB) http.Handler {
 	rout := chi.NewRouter()
 	http.Handle("/", rout)
 
 	repos := usecase.NewRepositories(db)
 
 	// Add all routers here
-	accountUsecase := usecase.NewAccountUsecase(repos.Account)
+	accountUsecase := usecase.NewAccountUsecase(repos.Account, logger)
 	accountRouter := router.NewAccountRouter(rout, config, logger, accountUsecase)
 	// ...
 
