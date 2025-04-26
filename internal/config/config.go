@@ -12,6 +12,7 @@ type ServerConfig struct {
 	LogLevel    string `yaml:"log_level"`
 	Address     string `yaml:"address"`
 	DatabaseURL string `yaml:"database_url"`
+	SecretKey   string `yaml:"secret_key"`
 }
 
 func NewServerConfig() *ServerConfig {

@@ -12,6 +12,7 @@ import (
 	"github.com/WebChads/AccountService/internal/models/dtos"
 	response "github.com/WebChads/AccountService/internal/pkg/api"
 	slogerr "github.com/WebChads/AccountService/internal/pkg/logger"
+	"github.com/WebChads/AccountService/pkg/middleware/auth"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator"
@@ -41,7 +42,12 @@ func NewAccountRouter(r *chi.Mux, cfg *config.ServerConfig,
 }
 
 func ConfigureAccountRouter(r *AccountRouter) {
-	// TODO: use middleware to check user authorization
+	jwt := auth.JWTConfig{
+		SecretKey: r.config.SecretKey,
+	}
+
+	// Auth middleware
+	r.defaultHandler.Use(jwt.AuthMiddleware)
 
 	r.defaultHandler.HandleFunc("/api/v1/account/create-account", r.CreateAccountHandler)
 	// ...
