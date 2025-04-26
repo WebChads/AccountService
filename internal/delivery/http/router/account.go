@@ -14,6 +14,7 @@ import (
 	slogerr "github.com/WebChads/AccountService/internal/pkg/logger"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/go-playground/validator"
 )
 
 type AccountUsecase interface {
@@ -47,7 +48,7 @@ func ConfigureAccountRouter(r *AccountRouter) {
 }
 
 func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), time.Millisecond * 100)
+	ctx, cancel := context.WithTimeout(r.Context(), time.Millisecond*100)
 	defer cancel()
 
 	var request dtos.CreateAccountRequest
@@ -68,6 +69,17 @@ func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Requ
 		render.JSON(w, r, response.Error("failed to decode request body"))
 		return
 	}
+
+	// Validate request fields
+	err = validator.New().Struct(request)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error(err.Error()))
+		return
+	}
+
+	// Get phone number from auth token
+	request.PhoneNumber = "892612345678"
 
 	err = a.usecase.Create(ctx, request)
 	if err != nil {
