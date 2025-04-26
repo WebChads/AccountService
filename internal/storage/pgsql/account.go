@@ -2,9 +2,9 @@ package storage
 
 import (
 	"context"
-	"time"
+	"errors"
 
-	"github.com/WebChads/AccountService/internal/models/entities"
+	"github.com/WebChads/AccountService/internal/models/dtos"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -18,28 +18,37 @@ func NewAccountRepository(db *sqlx.DB) *AccountRepository {
 	}
 }
 
-func (a *AccountRepository) Insert(account *entities.Account) error {
-	// Create transactions up to 100 milliseconds long
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Millisecond * 100))
-    defer cancel()
+// func checkExistanse(account dtos.CreateAccountRequest) bool {
+// 	return false
+// }
 
-    query := `
-        INSERT INTO accounts (
-            firstname, 
-            surname, 
-            patronymic, 
-            gender, 
-            birthdate
+func (a *AccountRepository) Insert(ctx context.Context, account dtos.CreateAccountRequest) error {
+	// TODO: check if user account already exists
+
+	tx, err := a.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return errors.New("failed to begin transaction: " + err.Error())
+	}
+	
+	query := `
+		INSERT INTO accounts (
+			firstname, 
+			surname, 
+			patronymic, 
+			gender, 
+			birthdate
         ) VALUES (:firstname, :surname, :patronymic, :gender, :birthdate)
-        RETURNING id, created_at, updated_at
-    `
-
-    // Using NamedQuery + Get for simpler single-row results
-    stmt, err := a.db.PrepareNamedContext(ctx, query)
-    if err != nil {
-        return err
+	`
+	
+	_, err = tx.NamedExecContext(ctx, query, account)
+	if err != nil {
+        return errors.New("failed to insert account: " + err.Error())
     }
-    defer stmt.Close()
 
-    return stmt.GetContext(ctx, account, account)
+    // Commit transaction
+    if err = tx.Commit(); err != nil {
+        return errors.New("failed to commit transaction: " + err.Error())
+    }
+
+	return nil
 }

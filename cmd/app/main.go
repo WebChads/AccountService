@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"log/slog"
@@ -27,8 +28,11 @@ func main() {
 	// Init logger
 	logger := setupLogger(config.LogLevel)
 
+	// Create context
+	ctx := context.Background()
+
 	// Init database
-	db, err := server.NewDB(config.DatabaseURL)
+	db, err := server.NewDB(ctx, config.DatabaseURL)
 	if err != nil {
 		logger.Error("failed to create database", slogerr.Error(err))
 		return

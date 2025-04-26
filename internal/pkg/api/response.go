@@ -7,7 +7,7 @@ type Response struct {
 
 const (
 	StatusOK    = "OK"
-	StatusError = "Error"
+	StatusError = "error"
 )
 
 func OK() Response {
@@ -19,6 +19,6 @@ func OK() Response {
 func Error(msg string) Response {
 	return Response{
 		Status: StatusError,
-		Error: msg,
+		Error:  msg,
 	}
 }

@@ -1,10 +1,12 @@
 package router
 
 import (
+	"context"
 	"errors"
 	"io"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/WebChads/AccountService/internal/config"
 	"github.com/WebChads/AccountService/internal/models/dtos"
@@ -15,7 +17,7 @@ import (
 )
 
 type AccountUsecase interface {
-	Create(dtos.CreateAccountRequest) error
+	Create(ctx context.Context, dto dtos.CreateAccountRequest) error
 }
 
 type AccountRouter struct {
@@ -45,27 +47,37 @@ func ConfigureAccountRouter(r *AccountRouter) {
 }
 
 func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), time.Millisecond * 100)
+	defer cancel()
+
 	var request dtos.CreateAccountRequest
 
-	// serialize account info using DTO
+	// Serialize account info using DTO
 	err := render.DecodeJSON(r.Body, &request)
 	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+
 		// EOF means there is no data in the request body
 		if errors.Is(err, io.EOF) {
 			slog.Error("request body is empty")
-
 			render.JSON(w, r, response.Error("empty request body"))
 			return
 		}
 
 		slog.Error("failed to decode request body", slogerr.Error(err))
-
-		render.JSON(w, r, response.Error("failed to decode request"))
+		render.JSON(w, r, response.Error("failed to decode request body"))
 		return
 	}
 
-	err = a.usecase.Create(request)
+	err = a.usecase.Create(ctx, request)
 	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			render.Status(r, http.StatusGatewayTimeout)
+			render.JSON(w, r, response.Error(err.Error()))
+		}
+
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, response.Error(err.Error()))
 		return
 	}
 }

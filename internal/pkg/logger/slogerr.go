@@ -8,3 +8,10 @@ func Error(err error) slog.Attr {
 		Value: slog.StringValue(err.Error()),
 	}
 }
+
+func Warn(err error) slog.Attr {
+	return slog.Attr{
+		Key: "warning",
+		Value: slog.StringValue(err.Error()),
+	}
+}

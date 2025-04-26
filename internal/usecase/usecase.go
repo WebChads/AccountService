@@ -1,13 +1,15 @@
 package usecase
 
 import (
-	"github.com/WebChads/AccountService/internal/models/entities"
+	"context"
+
+	"github.com/WebChads/AccountService/internal/models/dtos"
 	storage "github.com/WebChads/AccountService/internal/storage/pgsql"
 	"github.com/jmoiron/sqlx"
 )
 
 type AccountRepository interface {
-	Insert(*entities.Account) error
+	Insert(ctx context.Context, account dtos.CreateAccountRequest) error
 }
 
 // All service repositories

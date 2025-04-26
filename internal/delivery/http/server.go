@@ -28,11 +28,15 @@ func NewServer(handler http.Handler, address string) *Server {
 	return &Server{server: srv}
 }
 
-func NewDB(connString string) (*sqlx.DB, error) {
-	db, err := sqlx.Open("postgres", connString)
+func noOpMapper(s string) string { return s }
+
+func NewDB(ctx context.Context, connString string) (*sqlx.DB, error) {
+	db, err := sqlx.ConnectContext(ctx, "postgres", connString)
 	if err != nil {
 		return nil, err
 	}
+
+	db.MapperFunc(noOpMapper)
 
 	return db, nil
 }
