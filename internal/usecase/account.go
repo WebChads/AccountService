@@ -21,9 +21,6 @@ func NewAccountUsecase(r AccountRepository, l *slog.Logger) *AccountUsecase {
 }
 
 func (a *AccountUsecase) Create(ctx context.Context, account dtos.CreateAccountRequest) error {
-	// Get entity from DTO
-	// account := entities.NewAccountEntity(req)
-
 	err := a.repository.Insert(ctx, account)
 	if err != nil {
 		a.logger.Error("create account", slogerr.Error(err))

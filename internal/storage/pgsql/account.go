@@ -62,10 +62,17 @@ func (r *AccountRepository) Insert(ctx context.Context, a dtos.CreateAccountRequ
 	}
 
 	account := newAccount(a)
+
+	// Start transaction
 	tx, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
 		return errors.New("failed to begin transaction: " + err.Error())
 	}
+	defer func() {
+        if err != nil {
+            tx.Rollback()
+        }
+    }()
 
 	query := `
 		INSERT INTO accounts (
