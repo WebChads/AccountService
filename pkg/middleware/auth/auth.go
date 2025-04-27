@@ -46,10 +46,14 @@ func (config *JWTConfig) AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		// Define own type to avoid collisions
+		type userId string
+		const id userId = "user_id"
+
 		// Extract claims
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
 			// Add user information to context
-			ctx := context.WithValue(r.Context(), "user_id", claims["user_id"])
+			ctx := context.WithValue(r.Context(), id, claims["user_id"])
 			next.ServeHTTP(w, r.WithContext(ctx))
 		} else {
 			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
