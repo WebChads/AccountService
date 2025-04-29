@@ -3,4 +3,3 @@
 log_level: "local"
 address: "localhost:5000"
 database_url: "postgres://postgres:postgres@localhost:5432/account_service?sslmode=disable"
-secret_key: "some_cool_key"

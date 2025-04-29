@@ -1,20 +1,16 @@
 package auth
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"strings"
-
-	"github.com/golang-jwt/jwt/v5"
+	"time"
 )
 
-// JWTConfig holds JWT configuration
-type JWTConfig struct {
-	SecretKey string
-}
-
-// AuthMiddleware with JWT validation from Authorization header
-func (config *JWTConfig) AuthMiddleware(next http.Handler) http.Handler {
+func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Get Authorization header
 		authHeader := r.Header.Get("Authorization")
@@ -32,17 +28,59 @@ func (config *JWTConfig) AuthMiddleware(next http.Handler) http.Handler {
 
 		tokenString := parts[1]
 
-		// Parse and validate the token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			// Validate the signing method
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, jwt.ErrSignatureInvalid
-			}
-			return []byte(config.SecretKey), nil
-		})
+		// Prepare request to authorization service
+		authReq := struct {
+			Token string `json:"token"`
+		}{Token: tokenString}
 
-		if err != nil || !token.Valid {
-			http.Error(w, "Invalid authorization token", http.StatusUnauthorized)
+		reqBody, err := json.Marshal(authReq)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		// Create HTTP client with timeout
+		client := &http.Client{
+			Timeout: 5 * time.Second,
+		}
+
+		// Make POST request to authorization service
+		resp, err := client.Post(
+			"http://auth-service.com/validate-token",
+			"application/json",
+			bytes.NewBuffer(reqBody),
+		)
+		if err != nil {
+			http.Error(w, "Auth Service Unavailable", http.StatusServiceUnavailable)
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// Parse response body
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		type AuthResponse struct {
+			Valid   bool   `json:"valid"`
+			UserID  string `json:"user_id"`
+			Message string `json:"message"`
+		}
+		var authResp AuthResponse
+		if err := json.Unmarshal(body, &authResp); err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		if !authResp.Valid {
+			http.Error(w, authResp.Message, http.StatusUnauthorized)
 			return
 		}
 
@@ -50,13 +88,8 @@ func (config *JWTConfig) AuthMiddleware(next http.Handler) http.Handler {
 		type userId string
 		const id userId = "user_id"
 
-		// Extract claims
-		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			// Add user information to context
-			ctx := context.WithValue(r.Context(), id, claims["user_id"])
-			next.ServeHTTP(w, r.WithContext(ctx))
-		} else {
-			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
-		}
+		// Add user information to context
+		ctx := context.WithValue(r.Context(), id, authResp.UserID)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

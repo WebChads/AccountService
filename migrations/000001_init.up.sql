@@ -1,7 +1,7 @@
 -- Up migration: creates the accounts table
 CREATE TABLE accounts (
     id SERIAL PRIMARY KEY,
-    phone_number VARCHAR(255) NOT NULL,
+    user_id UUID NOT NULL,
     firstname VARCHAR(255) NOT NULL,
     surname VARCHAR(255) NOT NULL,
     patronymic VARCHAR(255),

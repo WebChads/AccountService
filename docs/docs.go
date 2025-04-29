@@ -56,7 +56,48 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Request body is empty or Request body field validation failed",
+                        "description": "Request body field validation failed",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/account/get-account": {
+            "get": {
+                "description": "This endpoint gets the user account by user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get a new personal account",
+                "responses": {
+                    "200": {
+                        "description": "The account was successfully received",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "No account with such user id",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal error",
                         "schema": {
                             "$ref": "#/definitions/dtos.Response"
                         }
@@ -87,10 +128,10 @@ const docTemplate = `{
                 "patronymic": {
                     "type": "string"
                 },
-                "phoneNumber": {
+                "surname": {
                     "type": "string"
                 },
-                "surname": {
+                "userId": {
                     "type": "string"
                 }
             }
