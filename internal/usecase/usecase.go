@@ -5,10 +5,12 @@ import (
 
 	"github.com/WebChads/AccountService/internal/models/dtos"
 	storage "github.com/WebChads/AccountService/internal/storage/pgsql"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
 type AccountRepository interface {
+	Select(ctx context.Context, userId uuid.UUID) (*dtos.GetAccountResponse, error)
 	Insert(ctx context.Context, account dtos.CreateAccountRequest) error
 }
 

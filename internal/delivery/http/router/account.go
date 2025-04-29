@@ -7,20 +7,22 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/WebChads/AccountService/internal/config"
 	"github.com/WebChads/AccountService/internal/models/dtos"
 	response "github.com/WebChads/AccountService/internal/pkg/api"
 	slogerr "github.com/WebChads/AccountService/internal/pkg/logger"
-	"github.com/WebChads/AccountService/pkg/middleware/auth"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator"
+	"github.com/google/uuid"
 )
 
 type AccountUsecase interface {
 	Create(ctx context.Context, dto dtos.CreateAccountRequest) error
+	Get(ctx context.Context, userId string) (*dtos.GetAccountResponse, error)
 }
 
 type AccountRouter struct {
@@ -43,15 +45,50 @@ func NewAccountRouter(r *chi.Mux, cfg *config.ServerConfig,
 }
 
 func ConfigureAccountRouter(r *AccountRouter) {
-	jwt := auth.JWTConfig{
-		SecretKey: r.config.SecretKey,
+	// Auth middleware
+	// r.defaultHandler.Use(auth.AuthMiddleware)
+
+	r.defaultHandler.Post("/api/v1/account/create-account", r.CreateAccountHandler)
+	r.defaultHandler.Get("/api/v1/account/get-account/{user_id}", r.GetAccountHandler)
+	// r.defaultHandler.Patch("/api/v1/account/update-account", r.UpdateAccountHandler)
+	// ...
+}
+
+// GetAccountHandler godoc
+// @Title GetAccount
+// @Summary Get a new personal account
+// @Description This endpoint gets the user account by user id
+// @Tags Account
+// @Accept json
+// @Produce json
+// @Success 200 {object} dtos.Response "The account was successfully received"
+// @Failure 400 {object} dtos.Response "No account with such user id"
+// @Failure 500 {object} dtos.Response "Internal error"
+// @Router /api/v1/account/get-account [get]
+func (a *AccountRouter) GetAccountHandler(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), time.Millisecond*100)
+	defer cancel()
+
+	userId := chi.URLParam(r, "user_id")
+	if userId == "" {
+		a.logger.Error("user_id param is empty")
+
+		response.JSON(w, http.StatusBadRequest, "invalid request")
+		return
 	}
 
-	// Auth middleware
-	r.defaultHandler.Use(jwt.AuthMiddleware)
+	account, err := a.usecase.Get(ctx, userId)
+	if err != nil {
+		if strings.Contains(err.Error(), "failed") {
+			response.JSON(w, http.StatusInternalServerError, err.Error())
+		} else {
+			response.JSON(w, http.StatusBadRequest, err.Error())
+		}
 
-	r.defaultHandler.HandleFunc("/api/v1/account/create-account", r.CreateAccountHandler)
-	// ...
+		return
+	}
+
+	response.JSON(w, http.StatusOK, account)
 }
 
 // CreateAccountHandler godoc
@@ -63,7 +100,9 @@ func ConfigureAccountRouter(r *AccountRouter) {
 // @Produce json
 // @Param request body dtos.CreateAccountRequest true "Create account parameters"
 // @Success 200 {object} dtos.Response "Successfully created personal account"
-// @Failure 400 {object} dtos.Response "Request body is empty or Request body field validation failed"
+// @Failure 400 {object} dtos.Response "Request body is empty"
+// @Failure 400 {object} dtos.Response "Request body field validation failed"
+// @Failure 500 {object} dtos.Response "Internal error"
 // @Router /api/v1/account/create-account [post]
 func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), time.Millisecond*100)
@@ -74,8 +113,6 @@ func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Requ
 	// Serialize account info using DTO
 	err := render.DecodeJSON(r.Body, &request)
 	if err != nil {
-		// render.Status(r, http.StatusBadRequest)
-
 		// EOF means there is no data in the request body
 		if errors.Is(err, io.EOF) {
 			a.logger.Error("request body is empty", slogerr.Error(err))
@@ -104,19 +141,22 @@ func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// Get phone number from request context
-	// request.PhoneNumber = r.Context().Value("phone_number").(string)
+	// Get user id from request context
+	// request.UserId = r.Context().Value("user_id").(uuid.UUID)
 
 	// Use mock data for now
-	request.PhoneNumber = "892612345678"
+	request.UserId = uuid.New()
 
 	err = a.usecase.Create(ctx, request)
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
 			response.JSON(w, http.StatusRequestTimeout, err.Error())
+		} else if strings.Contains(err.Error(), "failed") {
+			response.JSON(w, http.StatusInternalServerError, err.Error())
+		} else {
+			response.JSON(w, http.StatusBadRequest, err.Error())
 		}
 
-		response.JSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 }
