@@ -1,0 +1,96 @@
+basePath: /api/v1
+definitions:
+  dtos.CreateAccountRequest:
+    properties:
+      birthdate:
+        type: string
+      firstname:
+        type: string
+      gender:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+      userId:
+        type: string
+    required:
+    - birthdate
+    - firstname
+    - gender
+    - surname
+    type: object
+  dtos.Response:
+    properties:
+      message: {}
+      status:
+        type: integer
+    type: object
+host: localhost:5000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger API
+  version: "1.0"
+paths:
+  /api/v1/account/create-account:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new user personal account
+      parameters:
+      - description: Create account parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created personal account
+          schema:
+            $ref: '#/definitions/dtos.Response'
+        "400":
+          description: Request body field validation failed
+          schema:
+            $ref: '#/definitions/dtos.Response'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/dtos.Response'
+      summary: Create a new personal account
+      tags:
+      - Account
+  /api/v1/account/get-account:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint gets the user account by user id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: The account was successfully received
+          schema:
+            $ref: '#/definitions/dtos.Response'
+        "400":
+          description: No account with such user id
+          schema:
+            $ref: '#/definitions/dtos.Response'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/dtos.Response'
+      summary: Get a new personal account
+      tags:
+      - Account
+swagger: "2.0"
