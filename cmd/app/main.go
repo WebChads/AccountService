@@ -11,6 +11,7 @@ import (
 	slogerr "github.com/WebChads/AccountService/internal/pkg/logger"
 	"github.com/WebChads/AccountService/internal/storage/pgsql/migrations"
 	prettylogger "github.com/WebChads/AccountService/pkg/pretty_logger"
+	// prettylogger "github.com/WebChads/AccountService/pkg/pretty_logger"
 )
 
 // @title Swagger API

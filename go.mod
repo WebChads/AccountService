@@ -45,6 +45,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.4.0 // indirect
+	github.com/WebChads/AccountService/pkg/pretty_logger v0.0.0-20250430123952-32cd7a3dc2d8
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/go-chi/chi v1.5.5 // indirect
 	github.com/go-chi/render v1.0.3 // indirect
