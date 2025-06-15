@@ -8,6 +8,7 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.2.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
+	github.com/WebChads/AccountService/pkg/pretty_logger v0.0.0-20250430123952-32cd7a3dc2d8 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.1 // indirect

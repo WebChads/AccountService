@@ -1,5 +1,5 @@
 # config file for local dev
 
 log_level: "local"
-address: "localhost:5000"
+address: "localhost:8082"
 database_url: "postgres://postgres:postgres@localhost:5432/account_service?sslmode=disable"
