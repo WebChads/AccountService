@@ -13,20 +13,20 @@ import (
 	prettylogger "github.com/WebChads/AccountService/pkg/pretty_logger"
 )
 
-// @title Swagger API
+// @title Account Service API
 // @version 1.0
-// @description This is a sample server.
-// @termsOfService http://swagger.io/terms/
+// @description API for managing user accounts and authentication
 
 // @contact.name API Support
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
+// @contact.url https://example.com/support
+// @contact.email support@example.com
 
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
 
-// @host localhost:5000
+// @host localhost:8082
 // @BasePath /api/v1
+// @schemes http
 func main() {
 	// Init config
 	config := config.NewServerConfig()

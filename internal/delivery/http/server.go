@@ -11,7 +11,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"github.com/swaggo/http-swagger"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Server struct {
@@ -47,18 +47,21 @@ func InitRouter(config *config.ServerConfig, logger *slog.Logger, db *sqlx.DB) h
 	http.Handle("/", rout)
 
 	repos := usecase.NewRepositories(db)
-	
+
 	// Add all routers here
 	accountUsecase := usecase.NewAccountUsecase(repos.Account, logger)
 	accountRouter := router.NewAccountRouter(rout, config, logger, accountUsecase)
 	// ...
-	
+
 	// Configure routers
 	router.ConfigureAccountRouter(accountRouter)
 	// ...
-	
+
 	// Serve Swagger UI
-	rout.HandleFunc("/swagger/*", httpSwagger.WrapHandler)
+	// rout.HandleFunc("/swagger/*", httpSwagger.WrapHandler)
+	rout.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"),
+	))
 
 	return rout
 }

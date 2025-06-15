@@ -1,18 +1,21 @@
 basePath: /api/v1
 definitions:
-  dtos.CreateAccountRequest:
+  github_com_WebChads_AccountService_internal_models_dtos.CreateAccountRequest:
     properties:
       birthdate:
+        example: "1990-01-01"
         type: string
       firstname:
+        example: Иван
         type: string
       gender:
+        example: male
         type: string
       patronymic:
+        example: Иванович
         type: string
       surname:
-        type: string
-      userId:
+        example: Иванов
         type: string
     required:
     - birthdate
@@ -20,77 +23,114 @@ definitions:
     - gender
     - surname
     type: object
-  dtos.Response:
+  github_com_WebChads_AccountService_internal_models_dtos.GetAccountResponse:
+    properties:
+      age:
+        example: 33
+        type: integer
+      birthdate:
+        example: "1990-01-01T00:00:00Z"
+        type: string
+      firstname:
+        example: Иван
+        type: string
+      gender:
+        example: male
+        type: string
+      patronymic:
+        example: Иванович
+        type: string
+      surname:
+        example: Иванов
+        type: string
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+    type: object
+  github_com_WebChads_AccountService_internal_models_dtos.Response:
     properties:
       message: {}
       status:
+        example: 200
         type: integer
     type: object
-host: localhost:5000
+host: localhost:8082
 info:
   contact:
-    email: support@swagger.io
+    email: support@example.com
     name: API Support
-    url: http://www.swagger.io/support
-  description: This is a sample server.
+    url: https://example.com/support
+  description: API for managing user accounts and authentication
   license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Swagger API
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Account Service API
   version: "1.0"
 paths:
   /api/v1/account/create-account:
     post:
       consumes:
       - application/json
-      description: This endpoint creates a new user personal account
+      description: Creates a new user account with provided details
       parameters:
-      - description: Create account parameters
+      - description: Account creation data
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dtos.CreateAccountRequest'
+          $ref: '#/definitions/github_com_WebChads_AccountService_internal_models_dtos.CreateAccountRequest'
       produces:
       - application/json
       responses:
-        "200":
-          description: Successfully created personal account
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/dtos.Response'
+            $ref: '#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response'
         "400":
-          description: Request body field validation failed
+          description: Bad Request
           schema:
-            $ref: '#/definitions/dtos.Response'
+            $ref: '#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response'
         "500":
-          description: Internal error
+          description: Internal Server Error
           schema:
-            $ref: '#/definitions/dtos.Response'
-      summary: Create a new personal account
+            $ref: '#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response'
+      summary: Create new account
       tags:
       - Account
-  /api/v1/account/get-account:
+  /api/v1/account/get-account/{user_id}:
     get:
       consumes:
       - application/json
-      description: This endpoint gets the user account by user id
+      description: Returns account information for specified user ID
+      parameters:
+      - description: User ID
+        example: '"550e8400-e29b-41d4-a716-446655440000"'
+        in: path
+        name: user_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: The account was successfully received
+          description: OK
           schema:
-            $ref: '#/definitions/dtos.Response'
+            $ref: '#/definitions/github_com_WebChads_AccountService_internal_models_dtos.GetAccountResponse'
         "400":
-          description: No account with such user id
+          description: Bad Request
           schema:
-            $ref: '#/definitions/dtos.Response'
+            $ref: '#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response'
         "500":
-          description: Internal error
+          description: Internal Server Error
           schema:
-            $ref: '#/definitions/dtos.Response'
-      summary: Get a new personal account
+            $ref: '#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response'
+      summary: Get user account by ID
       tags:
       - Account
+schemes:
+- http
 swagger: "2.0"

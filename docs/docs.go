@@ -9,15 +9,14 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",
-            "url": "http://www.swagger.io/support",
-            "email": "support@swagger.io"
+            "url": "https://example.com/support",
+            "email": "support@example.com"
         },
         "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
         },
         "version": "{{.Version}}"
     },
@@ -26,7 +25,7 @@ const docTemplate = `{
     "paths": {
         "/api/v1/account/create-account": {
             "post": {
-                "description": "This endpoint creates a new user personal account",
+                "description": "Creates a new user account with provided details",
                 "consumes": [
                     "application/json"
                 ],
@@ -36,43 +35,43 @@ const docTemplate = `{
                 "tags": [
                     "Account"
                 ],
-                "summary": "Create a new personal account",
+                "summary": "Create new account",
                 "parameters": [
                     {
-                        "description": "Create account parameters",
+                        "description": "Account creation data",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dtos.CreateAccountRequest"
+                            "$ref": "#/definitions/github_com_WebChads_AccountService_internal_models_dtos.CreateAccountRequest"
                         }
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Successfully created personal account",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/dtos.Response"
+                            "$ref": "#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response"
                         }
                     },
                     "400": {
-                        "description": "Request body field validation failed",
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/dtos.Response"
+                            "$ref": "#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response"
                         }
                     },
                     "500": {
-                        "description": "Internal error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/dtos.Response"
+                            "$ref": "#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response"
                         }
                     }
                 }
             }
         },
-        "/api/v1/account/get-account": {
+        "/api/v1/account/get-account/{user_id}": {
             "get": {
-                "description": "This endpoint gets the user account by user id",
+                "description": "Returns account information for specified user ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -82,24 +81,40 @@ const docTemplate = `{
                 "tags": [
                     "Account"
                 ],
-                "summary": "Get a new personal account",
+                "summary": "Get user account by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"550e8400-e29b-41d4-a716-446655440000\"",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "The account was successfully received",
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dtos.Response"
+                            "$ref": "#/definitions/github_com_WebChads_AccountService_internal_models_dtos.GetAccountResponse"
                         }
                     },
                     "400": {
-                        "description": "No account with such user id",
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/dtos.Response"
+                            "$ref": "#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response"
                         }
                     },
                     "500": {
-                        "description": "Internal error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/dtos.Response"
+                            "$ref": "#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response"
                         }
                     }
                 }
@@ -107,7 +122,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dtos.CreateAccountRequest": {
+        "github_com_WebChads_AccountService_internal_models_dtos.CreateAccountRequest": {
             "type": "object",
             "required": [
                 "birthdate",
@@ -117,31 +132,67 @@ const docTemplate = `{
             ],
             "properties": {
                 "birthdate": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "1990-01-01"
                 },
                 "firstname": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Иван"
                 },
                 "gender": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "male"
                 },
                 "patronymic": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Иванович"
                 },
                 "surname": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Иванов"
                 }
             }
         },
-        "dtos.Response": {
+        "github_com_WebChads_AccountService_internal_models_dtos.GetAccountResponse": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer",
+                    "example": 33
+                },
+                "birthdate": {
+                    "type": "string",
+                    "example": "1990-01-01T00:00:00Z"
+                },
+                "firstname": {
+                    "type": "string",
+                    "example": "Иван"
+                },
+                "gender": {
+                    "type": "string",
+                    "example": "male"
+                },
+                "patronymic": {
+                    "type": "string",
+                    "example": "Иванович"
+                },
+                "surname": {
+                    "type": "string",
+                    "example": "Иванов"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                }
+            }
+        },
+        "github_com_WebChads_AccountService_internal_models_dtos.Response": {
             "type": "object",
             "properties": {
                 "message": {},
                 "status": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 }
             }
         }
@@ -151,11 +202,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:5000",
+	Host:             "localhost:8082",
 	BasePath:         "/api/v1",
-	Schemes:          []string{},
-	Title:            "Swagger API",
-	Description:      "This is a sample server.",
+	Schemes:          []string{"http"},
+	Title:            "Account Service API",
+	Description:      "API for managing user accounts and authentication",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

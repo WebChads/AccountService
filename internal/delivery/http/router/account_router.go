@@ -54,17 +54,18 @@ func ConfigureAccountRouter(r *AccountRouter) {
 	// ...
 }
 
-// GetAccountHandler godoc
 // @Title GetAccount
-// @Summary Get a new personal account
-// @Description This endpoint gets the user account by user id
+// @Summary Get user account by ID
+// @Description Returns account information for specified user ID
 // @Tags Account
 // @Accept json
 // @Produce json
-// @Success 200 {object} dtos.Response "The account was successfully received"
-// @Failure 400 {object} dtos.Response "No account with such user id"
-// @Failure 500 {object} dtos.Response "Internal error"
-// @Router /api/v1/account/get-account [get]
+// @Param user_id path string true "User ID" example("550e8400-e29b-41d4-a716-446655440000")
+// @Success 200 {object} dtos.GetAccountResponse
+// @Failure 400 {object} dtos.Response
+// @Failure 404 {object} dtos.Response
+// @Failure 500 {object} dtos.Response
+// @Router /api/v1/account/get-account/{user_id} [get]
 func (a *AccountRouter) GetAccountHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), time.Millisecond*100)
 	defer cancel()
@@ -91,18 +92,16 @@ func (a *AccountRouter) GetAccountHandler(w http.ResponseWriter, r *http.Request
 	response.JSON(w, http.StatusOK, account)
 }
 
-// CreateAccountHandler godoc
 // @Title CreateAccount
-// @Summary Create a new personal account
-// @Description This endpoint creates a new user personal account
+// @Summary Create new account
+// @Description Creates a new user account with provided details
 // @Tags Account
 // @Accept json
 // @Produce json
-// @Param request body dtos.CreateAccountRequest true "Create account parameters"
-// @Success 200 {object} dtos.Response "Successfully created personal account"
-// @Failure 400 {object} dtos.Response "Request body is empty"
-// @Failure 400 {object} dtos.Response "Request body field validation failed"
-// @Failure 500 {object} dtos.Response "Internal error"
+// @Param request body dtos.CreateAccountRequest true "Account creation data"
+// @Success 201 {object} dtos.Response
+// @Failure 400 {object} dtos.Response
+// @Failure 500 {object} dtos.Response
 // @Router /api/v1/account/create-account [post]
 func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), time.Millisecond*100)
@@ -110,6 +109,7 @@ func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Requ
 
 	var request dtos.CreateAccountRequest
 
+	a.logger.Debug("pisya")
 	// Serialize account info using DTO
 	err := render.DecodeJSON(r.Body, &request)
 	if err != nil {
