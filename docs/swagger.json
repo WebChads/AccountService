@@ -17,8 +17,6 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:8082",
-    "basePath": "/api/v1",
     "paths": {
         "/api/v1/account/create-account": {
             "post": {

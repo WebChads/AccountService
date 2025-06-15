@@ -58,7 +58,6 @@ func InitRouter(config *config.ServerConfig, logger *slog.Logger, db *sqlx.DB) h
 	// ...
 
 	// Serve Swagger UI
-	// rout.HandleFunc("/swagger/*", httpSwagger.WrapHandler)
 	rout.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("/swagger/doc.json"),
 	))

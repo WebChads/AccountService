@@ -13,7 +13,7 @@ type CreateAccountRequest struct {
 	Firstname  string    `json:"firstname" validate:"required" example:"Иван"`
 	Surname    string    `json:"surname" validate:"required" example:"Иванов"`
 	Patronymic string    `json:"patronymic" example:"Иванович"`
-	Gender     string    `json:"gender" validate:"required" example:"male"`
+	Gender     string    `json:"gender" validate:"required,min=1,max=1" example:"M"`
 	Birthdate  string    `json:"birthdate" validate:"required" example:"1990-01-01"`
 }
 

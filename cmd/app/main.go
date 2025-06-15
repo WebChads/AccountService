@@ -24,8 +24,6 @@ import (
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host localhost:8082
-// @BasePath /api/v1
 // @schemes http
 func main() {
 	// Init config
