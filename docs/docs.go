@@ -9,15 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {
-            "name": "API Support",
-            "url": "https://example.com/support",
-            "email": "support@example.com"
-        },
-        "license": {
-            "name": "MIT",
-            "url": "https://opensource.org/licenses/MIT"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -25,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/api/v1/account/create-account": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Creates a new user account with provided details",
                 "consumes": [
                     "application/json"
@@ -71,6 +68,11 @@ const docTemplate = `{
         },
         "/api/v1/account/get-account/{user_id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Returns account information for specified user ID",
                 "consumes": [
                     "application/json"
@@ -141,7 +143,9 @@ const docTemplate = `{
                 },
                 "gender": {
                     "type": "string",
-                    "example": "male"
+                    "maxLength": 1,
+                    "minLength": 1,
+                    "example": "M"
                 },
                 "patronymic": {
                     "type": "string",
@@ -196,6 +200,13 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
@@ -205,8 +216,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{"http"},
-	Title:            "Account Service API",
-	Description:      "API for managing user accounts and authentication",
+	Title:            "AccountService API",
+	Description:      "API for managing user accounts and personal info",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

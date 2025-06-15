@@ -13,18 +13,15 @@ import (
 	prettylogger "github.com/WebChads/AccountService/pkg/pretty_logger"
 )
 
-// @title Account Service API
+// @title AccountService API
 // @version 1.0
-// @description API for managing user accounts and authentication
-
-// @contact.name API Support
-// @contact.url https://example.com/support
-// @contact.email support@example.com
-
-// @license.name MIT
-// @license.url https://opensource.org/licenses/MIT
+// @description API for managing user accounts and personal info
 
 // @schemes http
+
+// @securityDefinitions.apikey  ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	// Init config
 	config := config.NewServerConfig()

@@ -8,7 +8,9 @@ definitions:
         example: Иван
         type: string
       gender:
-        example: male
+        example: M
+        maxLength: 1
+        minLength: 1
         type: string
       patronymic:
         example: Иванович
@@ -54,15 +56,9 @@ definitions:
         type: integer
     type: object
 info:
-  contact:
-    email: support@example.com
-    name: API Support
-    url: https://example.com/support
-  description: API for managing user accounts and authentication
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
-  title: Account Service API
+  contact: {}
+  description: API for managing user accounts and personal info
+  title: AccountService API
   version: "1.0"
 paths:
   /api/v1/account/create-account:
@@ -92,6 +88,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Create new account
       tags:
       - Account
@@ -126,9 +124,16 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_WebChads_AccountService_internal_models_dtos.Response'
+      security:
+      - ApiKeyAuth: []
       summary: Get user account by ID
       tags:
       - Account
 schemes:
 - http
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

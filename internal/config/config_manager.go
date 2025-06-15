@@ -13,8 +13,11 @@ import (
 )
 
 type ServerConfig struct {
-	LogLevel    string `json:"log_level" env:"LOG_LEVEL"`
-	Address     string `json:"address" env:"ADDRESS"`
+	LogLevel string `json:"log_level" env:"LOG_LEVEL"`
+	Address  string `json:"address" env:"ADDRESS"`
+
+	AuthServiceUrl string `json:"auth_service_url" env:"AUTH_SERVICE_URL"`
+
 	DatabaseURL string `json:"database_url" env:"DATABASE_URL"`
 }
 

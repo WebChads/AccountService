@@ -14,6 +14,7 @@ import (
 	"github.com/WebChads/AccountService/internal/models/dtos"
 	response "github.com/WebChads/AccountService/internal/pkg/api"
 	slogerr "github.com/WebChads/AccountService/internal/pkg/logger"
+	"github.com/WebChads/AccountService/pkg/middleware/auth"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator"
@@ -46,10 +47,10 @@ func NewAccountRouter(r *chi.Mux, cfg *config.ServerConfig,
 
 func ConfigureAccountRouter(r *AccountRouter) {
 	// Auth middleware
-	// r.defaultHandler.Use(auth.AuthMiddleware)
+	authMiddleware := auth.NewMiddleware(r.config.AuthServiceUrl)
 
-	r.defaultHandler.Post("/api/v1/account/create-account", r.CreateAccountHandler)
-	r.defaultHandler.Get("/api/v1/account/get-account/{user_id}", r.GetAccountHandler)
+	r.defaultHandler.With(authMiddleware.Handler).Post("/api/v1/account/create-account", r.CreateAccountHandler)
+	r.defaultHandler.With(authMiddleware.Handler).Get("/api/v1/account/get-account/{user_id}", r.GetAccountHandler)
 	// r.defaultHandler.Patch("/api/v1/account/update-account", r.UpdateAccountHandler)
 	// ...
 }
@@ -60,6 +61,7 @@ func ConfigureAccountRouter(r *AccountRouter) {
 // @Tags Account
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param user_id path string true "User ID" example("550e8400-e29b-41d4-a716-446655440000")
 // @Success 200 {object} dtos.GetAccountResponse
 // @Failure 400 {object} dtos.Response
@@ -98,6 +100,7 @@ func (a *AccountRouter) GetAccountHandler(w http.ResponseWriter, r *http.Request
 // @Tags Account
 // @Accept json
 // @Produce json
+// @Security ApiKeyAuth
 // @Param request body dtos.CreateAccountRequest true "Account creation data"
 // @Success 201 {object} dtos.Response
 // @Failure 400 {object} dtos.Response
@@ -109,7 +112,6 @@ func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Requ
 
 	var request dtos.CreateAccountRequest
 
-	a.logger.Debug("pisya")
 	// Serialize account info using DTO
 	err := render.DecodeJSON(r.Body, &request)
 	if err != nil {
@@ -142,10 +144,11 @@ func (a *AccountRouter) CreateAccountHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Get user id from request context
-	// request.UserId = r.Context().Value("user_id").(uuid.UUID)
-
-	// Use mock data for now
-	request.UserId = uuid.New()
+	userIdAsString := r.Context().Value("user_id").(string)
+	request.UserId, err = uuid.Parse(userIdAsString)
+	if err != nil {
+		response.JSON(w, http.StatusBadRequest, "unable to parse uuid from user_id")
+	}
 
 	err = a.usecase.Create(ctx, request)
 	if err != nil {
@@ -167,6 +170,8 @@ func getValidationMsg(fe validator.FieldError) string {
 		return fmt.Sprintf("%s is required", fe.Field())
 	case "min":
 		return fmt.Sprintf("%s must be at least %s characters", fe.Field(), fe.Param())
+	case "max":
+		return fmt.Sprintf("%s must be at most %s characters", fe.Field(), fe.Param())
 	}
 
 	return "validation error"
